@@ -6,7 +6,7 @@ require 'statsd/graphite'
 
 module Statsd
   module Server #< EM::Connection
-    Version = '0.5.4'
+    Version = '0.5.5'
 
     FLUSH_INTERVAL = 10
     COUNTERS = {}
@@ -25,6 +25,7 @@ module Statsd
     end
 
     def receive_data(msg)
+      puts "msg: #{msg}"
       msg.split("\n").each do |row|
         # puts row
         bits = row.split(':')
@@ -50,21 +51,19 @@ module Statsd
       def run(options)
         config = YAML::load(ERB.new(IO.read(options[:config])).result)
 
-                # Start the server
         EventMachine::run do
           EventMachine::open_datagram_socket(config['bind'], config['port'], Statsd::Server)
+          puts "#{config['bind']}:#{config['port']} derp"
 
           # Periodically Flush
           EventMachine::add_periodic_timer(config['flush_interval']) do
             counters,timers = Statsd::Server.get_and_clear_stats!
 
-            if options[:graphite]
-              EventMachine.connect config['graphite_host'], config['graphite_port'], Statsd::Graphite do |conn|
-                conn.counters = counters
-                conn.timers = timers
-                conn.flush_interval = config['flush_interval']
-                conn.flush_stats
-              end
+            EventMachine.connect config['graphite_host'], config['graphite_port'], Statsd::Graphite do |conn|
+              conn.counters = counters
+              conn.timers = timers
+              conn.flush_interval = config['flush_interval']
+              conn.flush_stats
             end
           end
         end
