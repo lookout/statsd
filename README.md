@@ -1,7 +1,6 @@
-StatsD
-======
+# StatsD
 
-A network daemon for aggregating statistics (counters and timers), rolling them up, then sending them to [graphite][graphite] or [mongodb][mongodb].
+A network daemon for aggregating statistics (counters and timers), rolling them up, then sending them to [graphite][graphite].
 
 
 ### Installation
@@ -18,49 +17,21 @@ Example config.yml
     port: 8125
 
     # Flush interval should be your finest retention in seconds
-    flush_interval: 10        
+    flush_interval: 10
 
     # Graphite
     graphite_host: localhost
     graphite_port: 2003
 
-    # Mongo
-    mongo_host: localhost
-    mongo_database: statsdb
-
-    # If you change these, you need to delete the capped collections yourself!
-    # Average mongo record size is 152 bytes
-    # 10s and 1min data is transient so we'll use MongoDB's capped collections. These collections are fixed in size.
-    # 5min and 1d data is interesting to preserve long-term. These collections are not capped.
-    retentions: 
-        - name: stats_per_10s
-          seconds: 10
-          capped: true
-          cap_bytes: 268_435_456 # 2**28
-        - name: stats_per_1min
-          seconds: 60
-          capped: true
-          cap_bytes: 1_073_741_824 # 2**30
-        - name: stats_per_5min
-          seconds: 600
-          cap_bytes: 0 
-          capped: false
-        - name: stats_per_day
-          seconds: 86400
-          cap_bytes: 0 
-          capped: false
 
 
 ### Server
 Run the server:
 
 Flush to Graphite (default):
-    statsd -c config.yml 
+    statsd -c config.yml
 
-Flush and aggregate to MongoDB:
-    statsd -c config.yml -m
-
-### Client    
+### Client
 In your client code:
 
     require 'rubygems'
@@ -84,7 +55,7 @@ Concepts
 
 * *values*
   Each stat will have a value. How it is interpreted depends on modifiers
-  
+
 * *flush*
   After the flush interval timeout (default 10 seconds), stats are munged and sent over to Graphite.
 
@@ -119,7 +90,6 @@ Guts
 
 * [EventMachine][eventmachine]
 * [Graphite][graphite]
-* [MongoDB][mongodb]
 
 
 Graphite
@@ -128,7 +98,7 @@ Graphite
 Graphite uses "schemas" to define the different round robin datasets it houses (analogous to RRAs in rrdtool):
 
     [stats]
-    priority = 110 
+    priority = 110
     pattern = ^stats\..*
     retentions = 10:2160,60:10080,600:262974
 
@@ -144,7 +114,7 @@ This has been a good tradeoff so far between size-of-file (round robin databases
 MongoDB
 -------------
 
-Statd::Mongo will flush and aggregate data to a MongoDB. The average record size is 152 bytes. We use capped collections for the transient data and regular collections for long-term storage. 
+Statd::Mongo will flush and aggregate data to a MongoDB. The average record size is 152 bytes. We use capped collections for the transient data and regular collections for long-term storage.
 
 Inspiration
 -----------

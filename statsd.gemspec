@@ -2,20 +2,22 @@
 lib = File.expand_path('../lib/', __FILE__)
 $:.unshift lib unless $:.include?(lib)
 require File.expand_path("../lib/statsd/server", __FILE__) # for version info
+
 Gem::Specification.new do |s|
   s.name        = "statsd"
   s.version     = Statsd::Server::Version
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ['Andrew Coldham', 'Ben VandenBos']
-  s.email       = ['quasor@me.com']
-  s.homepage    = "http://github.com/quasor/statsd"
+
+  s.authors     = ['R. Tyler Croy', 'Andrew Coldham', 'Ben VandenBos']
+  s.email       = ['rtyler.croy@mylookout.com']
+  s.homepage    = "http://source.flexilis.local/rcroy/stats"
+
   s.summary     = "Ruby version of statsd."
-  s.description = "A network daemon for aggregating statistics (counters and timers), rolling them up, then sending them to graphite or mongo."
+  s.description = "A network daemon for aggregating statistics (counters and timers), rolling them up, then sending them to graphite."
 
   s.required_rubygems_version = ">= 1.3.6"
 
   s.add_dependency "eventmachine",  ">= 0.12.10"
-  s.add_dependency "mongo",         ">= 1.2.4"
   s.add_dependency "erubis",        ">= 2.6.6"
 
   s.files        = `git ls-files`.split("\n")
