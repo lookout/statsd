@@ -2,9 +2,9 @@ require 'eventmachine'
 require 'yaml'
 require 'erb'
 module Statsd
-  module Server #< EM::Connection  
-    Version = '0.5.4'  
-    
+  module Server #< EM::Connection
+    Version = '0.5.4'
+
     FLUSH_INTERVAL = 10
     COUNTERS = {}
     TIMERS = {}
@@ -21,19 +21,19 @@ module Statsd
       [counters,timers]
     end
 
-    def receive_data(msg)    
+    def receive_data(msg)
       msg.split("\n").each do |row|
         # puts row
         bits = row.split(':')
         key = bits.shift.gsub(/\s+/, '_').gsub(/\//, '-').gsub(/[^a-zA-Z_\-0-9\.]/, '')
         bits.each do |record|
           sample_rate = 1
-          fields = record.split("|")    
-          if (fields[1].strip == "ms") 
+          fields = record.split("|")
+          if (fields[1].strip == "ms")
             TIMERS[key] ||= []
             TIMERS[key].push(fields[0].to_i)
           else
-            if (fields[2] && fields[2].match(/^@([\d\.]+)/)) 
+            if (fields[2] && fields[2].match(/^@([\d\.]+)/))
               sample_rate = fields[2].match(/^@([\d\.]+)/)[1]
             end
             COUNTERS[key] ||= 0
@@ -41,7 +41,7 @@ module Statsd
           end
         end
       end
-    end    
+    end
 
     class Daemon
       def run(options)
@@ -54,23 +54,23 @@ module Statsd
           config['retentions'].each do |retention|
             collection_name = retention['name']
             unless db.collection_names.include?(collection_name)
-              db.create_collection(collection_name, :capped => retention['capped'], :size => retention['cap_bytes']) 
+              db.create_collection(collection_name, :capped => retention['capped'], :size => retention['cap_bytes'])
             end
             db.collection(collection_name).ensure_index([['ts', ::Mongo::ASCENDING]])
-          end        
+          end
           Statsd::Mongo.hostname = config['mongo_host']
           Statsd::Mongo.database = config['mongo_database']
           Statsd::Mongo.retentions = config['retentions']
           Statsd::Mongo.flush_interval = config['flush_interval']
         end
-      
+
         if options[:graphite]
-          require 'statsd/graphite' 
+          require 'statsd/graphite'
         end
-      
+
         # Start the server
         EventMachine::run do
-          EventMachine::open_datagram_socket(config['bind'], config['port'], Statsd::Server)  
+          EventMachine::open_datagram_socket(config['bind'], config['port'], Statsd::Server)
 
           # Periodically Flush
           EventMachine::add_periodic_timer(config['flush_interval']) do
@@ -78,7 +78,7 @@ module Statsd
 
              # Flush Adapters
             if options[:mongo]
-              EM.defer { Statsd::Mongo.flush_stats(counters,timers) } 
+              EM.defer { Statsd::Mongo.flush_stats(counters,timers) }
             end
 
             if options[:graphite]
@@ -87,16 +87,16 @@ module Statsd
                 conn.timers = timers
                 conn.flush_interval = config['flush_interval']
                 conn.flush_stats
-              end     
+              end
             end
-          
+
           end
 
         end
-      
+
       end
     end
-  end 
+  end
 end
 
 

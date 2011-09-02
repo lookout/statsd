@@ -13,10 +13,10 @@ module Statsd
       time = ::Benchmark.realtime do
         docs = []
         ts = Time.now.to_i
-        num_stats = 0        
-        retention = retentions.first # always write at the fineset granularity        
+        num_stats = 0
+        retention = retentions.first # always write at the fineset granularity
         ts_bucket = ts / retention['seconds'].to_i * retention['seconds'].to_i
-        
+
         # connect to store
         db = ::Mongo::Connection.new(hostname).db(database)
         coll = db.collection(retention['name'])
@@ -29,10 +29,10 @@ module Statsd
 
           num_stats += 1
         end
-    
+
         # store timers
         timers.each_pair do |key, values|
-          if (values.length > 0) 
+          if (values.length > 0)
             pct_threshold = 90
             values.sort!
             count = values.count
@@ -54,9 +54,9 @@ module Statsd
             end
 
             timers[key] = []
-          
+
             # Flush Values to Store
-            doc = { :stat => key, 
+            doc = { :stat => key,
               :values => {
                 :mean => mean,
                 :max => max,
@@ -68,20 +68,20 @@ module Statsd
               :ts => ts_bucket
             }
             docs.push(doc)
-          
+
             num_stats += 1
           end
         end
         coll.insert(docs)
-        
+
        aggregate(ts_bucket)
-      end 
+      end
       puts "complete. (#{time.round(3)}s)"
     end
 
     # For each coarse granularity of retention
-    #   Look up the previous bucket 
-    #     If there is no data, aggregate the finest Fill it if empty 
+    #   Look up the previous bucket
+    #     If there is no data, aggregate the finest Fill it if empty
     # TODO consider doing this inside Mongo with M/R
     def self.aggregate(current_bucket)
       db = ::Mongo::Connection.new(hostname).db(database)
@@ -106,14 +106,14 @@ module Statsd
           count = rows.count
           rows.group_by {|r| r["stat"] }.each_pair do |name,stats|
             case stats.first['type']
-            when 'timer' 
+            when 'timer'
               mean = stats.collect {|stat| stat['values']['mean'] }.inject( 0 ) { |s,x| s+x } / stats.count
               max  = stats.collect {|stat| stat['values']['max'] }.max
               min  = stats.collect {|stat| stat['values']['min'] }.min
               upper_key = stats.first['values'].keys.find{|k| k =~ /upper_/}
               max_at_threshold = stats.collect {|stat| stat['values'][upper_key] }.max
-              total_stats = stats.collect {|stat| stat['values']['count'] }.inject( 0 ) { |s,x| s+x }            
-              doc = { :stat => name, 
+              total_stats = stats.collect {|stat| stat['values']['count'] }.inject( 0 ) { |s,x| s+x }
+              doc = { :stat => name,
                 :values => {
                   :mean => mean,
                   :max => max,
@@ -124,21 +124,21 @@ module Statsd
                 :type => "timer",
                 :ts => previous_coarse_bucket
               }
-            when 'counter'  
-              doc = {:stat => name, 
-                :value => stats.collect {|stat| stat['value'] }.inject( 0 ) { |s,x| s+x }, 
-                :ts => previous_coarse_bucket, 
+            when 'counter'
+              doc = {:stat => name,
+                :value => stats.collect {|stat| stat['value'] }.inject( 0 ) { |s,x| s+x },
+                :ts => previous_coarse_bucket,
                 :type => "counter"
               }
             else
               raise "unknown type #{stats.first['type']}"
             end
-            docs.push(doc) 
+            docs.push(doc)
           end
           coarse_stats_collection.insert(docs) unless docs.empty?
         end
       end
-      
+
     end
   end
 end
