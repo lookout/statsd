@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.homepage    = "http://github.com/quasor/statsd"
   s.summary     = "Ruby version of statsd."
   s.description = "A network daemon for aggregating statistics (counters and timers), rolling them up, then sending them to graphite or mongo."
-  
+
   s.required_rubygems_version = ">= 1.3.6"
 
   s.add_dependency "eventmachine",  ">= 0.12.10"
