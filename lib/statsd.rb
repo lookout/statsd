@@ -1,13 +1,10 @@
 # encoding: utf-8
 module Statsd
 
-  #
-  # Statsd::Client by Ben VandenBos
-  # http://github.com/bvandenbos/statsd-client
-  #
+  Version = '0.0.5'
+
   class Client
 
-    Version = '0.0.4'
     attr_accessor :host, :port
 
     def initialize(host='localhost', port=8125)
