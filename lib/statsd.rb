@@ -1,4 +1,6 @@
-# encoding: utf-8
+require 'socket'
+require 'resolv'
+
 module Statsd
 
   Version = '0.0.5'
@@ -7,15 +9,24 @@ module Statsd
 
     attr_accessor :host, :port
 
-    def initialize(host='localhost', port=8125)
-      @host = host
-      @port = port
+    def host_ip_addr
+      @host_ip_addr ||= Resolv.getaddress(host)
+    end
+
+    def host=(h)
+      @host_ip_addr = nil
+      @host = h
     end
 
     # +stat+ to log timing for
     # +time+ is the time to log in ms
-    def timing(stat, time, sample_rate = 1)
-      send_stats "#{stat}:#{time}|ms", sample_rate
+    def timing(stat, time = nil, sample_rate = 1)
+      if block_given?
+        start_time = Time.now.to_f
+        yield
+        time = ((Time.now.to_f - start_time) * 1000).floor
+      end
+      send_stats("#{stat}:#{time}|ms", sample_rate)
     end
 
     # +stats+ can be a string or an array of strings
@@ -59,15 +70,13 @@ module Statsd
         data.each do |d|
           sock.send(d, 0, host, port)
         end
-      rescue Exception => e # silent but deadly
-        puts e.message
+      rescue # silent but deadly
       ensure
-        sock.try(:close)
+        sock.close
       end
       true
     end
 
-
   end
-end
 
+end
