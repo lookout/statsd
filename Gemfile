@@ -1,5 +1,4 @@
 source :gemcutter
-source 'http://maestro.mylookout.com:8001'
 
 gem "rake"
 
@@ -9,4 +8,7 @@ group :test do
   else
     gem "ruby-debug"
   end
+
+  gem "rspec"
+  gem "cucumber"
 end
