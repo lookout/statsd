@@ -1,16 +1,13 @@
 # -*- encoding: utf-8 -*-
-lib = File.expand_path('../lib/', __FILE__)
-$:.unshift lib unless $:.include?(lib)
-require File.expand_path("../lib/statsd/server", __FILE__) # for version info
 
 Gem::Specification.new do |s|
   s.name        = "lookout-statsd"
-  s.version     = Statsd::Server::Version
+  s.version     = '0.5.5'
   s.platform    = Gem::Platform::RUBY
 
   s.authors     = ['R. Tyler Croy', 'Andrew Coldham', 'Ben VandenBos']
   s.email       = ['rtyler.croy@mylookout.com']
-  s.homepage    = "http://source.flexilis.local/rcroy/stats"
+  s.homepage    = "http://source.flexilis.local/rcroy/statsd"
 
   s.summary     = "Ruby version of statsd."
   s.description = "A network daemon for aggregating statistics (counters and timers), rolling them up, then sending them to graphite."
