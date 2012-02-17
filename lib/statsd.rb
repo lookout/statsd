@@ -6,8 +6,12 @@ module Statsd
   Version = '0.0.5'
 
   class Client
-
     attr_accessor :host, :port
+
+    def initialize(opts={})
+      @host = opts[:host] || 'localhost'
+      @port = opts[:port] || 8125
+    end
 
     def host_ip_addr
       @host_ip_addr ||= Resolv.getaddress(host)
