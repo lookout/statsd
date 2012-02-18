@@ -2,7 +2,6 @@ require 'socket'
 require 'resolv'
 
 module Statsd
-
   Version = '0.0.5'
 
   class Client
@@ -26,9 +25,10 @@ module Statsd
     # +stat+ to log timing for
     # +time+ is the time to log in ms
     def timing(stat, time = nil, sample_rate = 1)
+      value = nil
       if block_given?
         start_time = Time.now.to_f
-        yield
+        value = yield
         time = ((Time.now.to_f - start_time) * 1000).floor
       end
 
@@ -37,6 +37,7 @@ module Statsd
       end
 
       send_stats("#{stat}:#{time}|ms", sample_rate)
+      value
     end
 
     # +stats+ can be a string or an array of strings

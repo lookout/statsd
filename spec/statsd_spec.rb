@@ -55,6 +55,15 @@ describe Statsd::Client do
         true.should be true
       end
     end
+
+    it 'should return the return value from the block' do
+      # Pretend our block took one second
+      c.should_receive(:send_stats).with('foo:1000|ms', anything())
+      Time.stub_chain(:now, :to_f).and_return(1, 2)
+
+      value = c.timing('foo') { 1337 }
+      value.should == 1337
+    end
   end
 
   describe '#increment' do
