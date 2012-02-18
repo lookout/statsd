@@ -9,7 +9,7 @@ A network daemon for aggregating statistics (counters and timers), rolling them 
 
 ### Configuration
 
-Create config.yml to your liking. There are 2 flush protocols: graphite and mongo. The former simply sends to carbon every flush interval. The latter flushes to MongoDB capped collections for 10s and 1min intervals.
+Create config.yml to your liking.
 
 Example config.yml
     ---
@@ -111,11 +111,6 @@ That translates to:
 This has been a good tradeoff so far between size-of-file (round robin databases are fixed size) and data we care about. Each "stats" database is about 3.2 megs with these retentions.
 
 
-MongoDB
--------------
-
-Statd::Mongo will flush and aggregate data to a MongoDB. The average record size is 152 bytes. We use capped collections for the transient data and regular collections for long-term storage.
-
 Inspiration
 -----------
 [Etsy's][etsy] [blog post][blog post].
@@ -129,4 +124,3 @@ StatsD was inspired (heavily) by the project (of the same name) at Flickr. Here'
 [blog post]: http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
 [udp]: http://enwp.org/udp
 [eventmachine]: http://rubyeventmachine.com/
-[mongodb]: http://www.mongodb.org/
