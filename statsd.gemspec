@@ -2,12 +2,12 @@
 
 Gem::Specification.new do |s|
   s.name        = "lookout-statsd"
-  s.version     = '0.5.6'
+  s.version     = '0.5.7'
   s.platform    = Gem::Platform::RUBY
 
   s.authors     = ['R. Tyler Croy', 'Andrew Coldham', 'Ben VandenBos']
   s.email       = ['rtyler.croy@mylookout.com']
-  s.homepage    = "http://source.flexilis.local/rcroy/statsd"
+  s.homepage    = "https://github.com/rtyler/statsd"
 
   s.summary     = "Ruby version of statsd."
   s.description = "A network daemon for aggregating statistics (counters and timers), rolling them up, then sending them to graphite."
