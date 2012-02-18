@@ -6,11 +6,12 @@ module Statsd
   Version = '0.0.5'
 
   class Client
-    attr_accessor :host, :port
+    attr_accessor :host, :port, :prefix
 
     def initialize(opts={})
       @host = opts[:host] || 'localhost'
       @port = opts[:port] || 8125
+      @prefix = opts[:prefix]
     end
 
     def host_ip_addr
@@ -30,16 +31,27 @@ module Statsd
         yield
         time = ((Time.now.to_f - start_time) * 1000).floor
       end
+
+      if @prefix
+        stat = "#{@prefix}.#{stat}"
+      end
+
       send_stats("#{stat}:#{time}|ms", sample_rate)
     end
 
     # +stats+ can be a string or an array of strings
     def increment(stats, sample_rate = 1)
+      if @prefix
+        stats = "#{@prefix}.#{stats}"
+      end
       update_counter stats, 1, sample_rate
     end
 
     # +stats+ can be a string or an array of strings
     def decrement(stats, sample_rate = 1)
+      if @prefix
+        stats = "#{@prefix}.#{stats}"
+      end
       update_counter stats, -1, sample_rate
     end
 
