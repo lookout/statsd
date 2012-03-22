@@ -25,9 +25,7 @@ module Statsd
     end
 
     def receive_data(msg)
-      puts "msg: #{msg}"
       msg.split("\n").each do |row|
-        # puts row
         bits = row.split(':')
         key = bits.shift.gsub(/\s+/, '_').gsub(/\//, '-').gsub(/[^a-zA-Z_\-0-9\.]/, '')
         bits.each do |record|
@@ -53,7 +51,7 @@ module Statsd
 
         EventMachine::run do
           EventMachine::open_datagram_socket(config['bind'], config['port'], Statsd::Server)
-          puts "#{config['bind']}:#{config['port']} derp"
+          puts "Listening on #{config['bind']}:#{config['port']}"
 
           # Periodically Flush
           EventMachine::add_periodic_timer(config['flush_interval']) do
