@@ -108,4 +108,15 @@ module Statsd
 
   end
 
+  module Rails
+    # to monitor all actions for this controller (and its descendents) with graphite,
+    # use "around_filter Statsd::Rails::ActionTimerFilter"
+    class ActionTimerFilter
+      def self.filter(controller, &block)
+        key = "requests.#{controller.controller_name}.#{controller.params[:action]}"
+        Statsd.instance.timing(key, &block)
+      end
+    end
+  end
+
 end
