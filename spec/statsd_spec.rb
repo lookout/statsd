@@ -1,5 +1,29 @@
 require './lib/statsd.rb'
 
+describe Statsd do
+  describe '#create_instance' do
+    after(:each) do
+      Statsd.send(:remove_class_variable, :@@instance)
+    end
+
+    it 'should create an instance' do
+      Statsd.create_instance
+      Statsd.instance.should_not be nil
+    end
+
+    it 'should raise if called twice' do
+      Statsd.create_instance
+      expect { Statsd.create_instance }.to raise_error
+    end
+  end
+
+  describe '#instance' do
+    it 'should raise if not created' do
+      expect { Statsd.instance }.to raise_error
+    end
+  end
+end
+
 describe Statsd::Client do
   describe '#initialize' do
     it 'should work without arguments' do

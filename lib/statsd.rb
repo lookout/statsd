@@ -2,7 +2,19 @@ require 'socket'
 require 'resolv'
 
 module Statsd
-  Version = '0.0.5'
+  Version = '0.0.6'
+
+  # initialize singleton instance in an initializer
+  def self.create_instance(opts={})
+    raise "Already initialized Statsd" if defined? @@instance
+    @@instance ||= Client.new(opts)
+  end
+
+  # access singleton instance, which must have been initialized with #create_instance
+  def self.instance
+    raise "Statsd has not been initialized" unless @@instance
+    @@instance
+  end
 
   class Client
     attr_accessor :host, :port, :prefix
@@ -94,6 +106,17 @@ module Statsd
       true
     end
 
+  end
+
+  module Rails
+    # to monitor all actions for this controller (and its descendents) with graphite,
+    # use "around_filter Statsd::Rails::ActionTimerFilter"
+    class ActionTimerFilter
+      def self.filter(controller, &block)
+        key = "requests.#{controller.controller_name}.#{controller.params[:action]}"
+        Statsd.instance.timing(key, &block)
+      end
+    end
   end
 
 end
