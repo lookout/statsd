@@ -2,7 +2,19 @@ require 'socket'
 require 'resolv'
 
 module Statsd
-  Version = '0.0.5'
+  Version = '0.0.6'
+
+  # initialize singleton instance in an initializer
+  def self.create_instance(opts={})
+    raise "Already initialized Statsd" if defined? @@instance
+    @@instance ||= Client.new(opts)
+  end
+
+  # access singleton instance, which must have been initialized with #create_instance
+  def self.instance
+    raise "Statsd has not been initialized" unless @@instance
+    @@instance
+  end
 
   class Client
     attr_accessor :host, :port, :prefix
