@@ -2,8 +2,6 @@ require 'socket'
 require 'resolv'
 
 module Statsd
-  Version = '0.0.6'
-
   # initialize singleton instance in an initializer
   def self.create_instance(opts={})
     raise "Already initialized Statsd" if defined? @@instance
