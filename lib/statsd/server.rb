@@ -31,6 +31,9 @@ module Statsd
         bits.each do |record|
           sample_rate = 1
           fields = record.split("|")
+          if fields.nil? || fields.count < 2
+            next
+          end
           if (fields[1].strip == "ms")
             TIMERS[key] ||= []
             TIMERS[key].push(fields[0].to_i)
