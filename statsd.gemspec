@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
 
   s.authors     = ['R. Tyler Croy', 'Andrew Coldham', 'Ben VandenBos']
   s.email       = ['rtyler.croy@mylookout.com']
-  s.homepage    = "https://github.com/rtyler/statsd"
+  s.homepage    = "https://github.com/lookout/statsd"
 
   s.summary     = "Ruby version of statsd."
   s.description = "A network daemon for aggregating statistics (counters and timers), rolling them up, then sending them to graphite."
