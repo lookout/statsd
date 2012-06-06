@@ -5,7 +5,7 @@ require 'erb'
 require 'statsd/graphite'
 
 module Statsd
-  module Server #< EM::Connection
+  module Server
     Version = '0.5.5'
 
     FLUSH_INTERVAL = 10

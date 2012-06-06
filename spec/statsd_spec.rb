@@ -1,4 +1,4 @@
-require './lib/statsd.rb'
+require 'spec_helper'
 
 describe Statsd do
   describe '#create_instance' do
