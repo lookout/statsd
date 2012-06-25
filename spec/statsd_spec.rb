@@ -109,4 +109,22 @@ describe Statsd::Client do
       c.decrement('foo')
     end
   end
+
+  describe '#gauge' do
+    let(:c) { Statsd::Client.new }
+
+    it 'should encode the values correctly' do
+      c.should_receive(:send_stats).with do |array|
+        array.should include('foo:1|g')
+        array.should include('bar:2|g')
+      end
+      c.gauge('foo' => 1, 'bar' => 2)
+    end
+
+    it 'should prepend the prefix if it has one' do
+      c.prefix = 'dev'
+      c.should_receive(:send_stats).with(['dev.foo:1|g'])
+      c.gauge('foo' => 1)
+    end
+  end
 end
