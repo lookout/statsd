@@ -52,24 +52,19 @@ module Statsd
 
     # +stats+ can be a string or an array of strings
     def increment(stats, sample_rate = 1)
-      if @prefix
-        stats = "#{@prefix}.#{stats}"
-      end
       update_counter stats, 1, sample_rate
     end
 
     # +stats+ can be a string or an array of strings
     def decrement(stats, sample_rate = 1)
-      if @prefix
-        stats = "#{@prefix}.#{stats}"
-      end
       update_counter stats, -1, sample_rate
     end
 
     # +stats+ can be a string or array of strings
     def update_counter(stats, delta = 1, sample_rate = 1)
       stats = Array(stats)
-      send_stats(stats.map { |s| "#{s}:#{delta}|c" }, sample_rate)
+      p = @prefix ? "#{@prefix}." : '' # apply prefix to each
+      send_stats(stats.map { |s| "#{p}#{s}:#{delta}|c" }, sample_rate)
     end
 
     # +stats+ is a hash
