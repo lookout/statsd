@@ -93,9 +93,8 @@ describe Statsd::Client do
   describe '#increment' do
     let(:c) { Statsd::Client.new }
 
-    it 'should prepend the prefix if it has one' do
-      c.prefix = 'dev'
-      c.should_receive(:update_counter).with('dev.foo', anything(), anything())
+    it 'should update the counter by 1' do
+      c.should_receive(:update_counter).with('foo', 1, anything())
       c.increment('foo')
     end
   end
@@ -103,10 +102,25 @@ describe Statsd::Client do
   describe '#decrement' do
     let(:c) { Statsd::Client.new }
 
+    it 'should update the counter by -1' do
+      c.should_receive(:update_counter).with('foo', -1, anything())
+      c.decrement('foo')
+    end
+  end
+
+  describe '#update_counter' do
+    let(:c) { Statsd::Client.new }
+
     it 'should prepend the prefix if it has one' do
       c.prefix = 'dev'
-      c.should_receive(:update_counter).with('dev.foo', anything(), anything())
-      c.decrement('foo')
+      c.should_receive(:send_stats).with(['dev.foo:123|c'], anything())
+      c.update_counter('foo', 123)
+    end
+
+    it 'should prepend multiple prefixes if it has one' do
+      c.prefix = 'dev'
+      c.should_receive(:send_stats).with(['dev.foo:123|c', 'dev.bar:123|c'], anything())
+      c.update_counter(['foo', 'bar'], 123)
     end
   end
 
