@@ -27,7 +27,7 @@ module Statsd
       [counters,timers,gauges]
     end
 
-    def receive_data(msg)
+    def self.receive_data(msg)
       msg.split("\n").each do |row|
         bits = row.split(':')
         key = bits.shift.gsub(/\s+/, '_').gsub(/\//, '-').gsub(/[^a-zA-Z_\-0-9\.]/, '')
@@ -55,12 +55,56 @@ module Statsd
       end
     end
 
+    module Forwarder
+      @@sockets = {}
+      @@destinations = []
+      def receive_data(msg)
+        # Send data to the normal, local Statsd instance.
+        Statsd::Server.receive_data(msg)
+        # And then also multicast the message to the forwarding destinations.
+        @@sockets.each do |destination, socket|
+          begin
+            socket.send(msg, 0)
+          rescue SocketError, Errno::ECONNREFUSED => e
+            puts "ERROR: Couldn't send message to #{destination}. Stopping this output.(#{e.inspect})"
+            @@sockets.delete(destination)
+          end
+        end
+      end
+      def self.build_fresh_sockets
+        # Reset destinations to those destinations for which we could
+        # actually get a socket going.
+        @@sockets.clear
+        @@destinations = @@destinations.select do |destination|
+          begin
+            s = UDPSocket.new(Socket::AF_INET)
+            s.connect destination['hostname'], destination['port']
+            @@sockets[destination] = s
+            true
+          rescue SocketError
+            puts "ERROR: Couldn't create a socket to #{destination}/#{port}. Pruning destination from Forwarder. (#{e.inspect})"
+            false
+          end
+        end
+      end
+      def self.set_destinations(destinations)
+        raise ArgumentError unless destinations.is_a?(Array)
+        raise ArgumentError unless destinations.map { |d| d.keys }.flatten.uniq.sort == ['hostname', 'port']
+        @@destinations = destinations
+      end
+    end
     class Daemon
       def run(options)
         config = YAML::load(ERB.new(IO.read(options[:config])).result)
 
         EventMachine::run do
-          EventMachine::open_datagram_socket(config['bind'], config['port'], Statsd::Server)
+          if config['forwarding']
+            Statsd::Server::Forwarder.set_destinations(config['forwarding_destinations'])
+            EventMachine::add_periodic_timer(config['flush_interval']) { Statsd::Server::Forwarder.build_fresh_sockets }
+            EventMachine::open_datagram_socket(config['bind'], config['port'], Statsd::Server::Forwarder)
+          else
+            EventMachine::open_datagram_socket(config['bind'], config['port'], Statsd::Server)
+          end
           puts "Listening on #{config['bind']}:#{config['port']}"
 
           # Periodically Flush
@@ -77,6 +121,5 @@ module Statsd
         end
       end
     end
-
   end
 end

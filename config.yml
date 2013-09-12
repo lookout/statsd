@@ -1,10 +1,24 @@
 ---
+# Accept incoming Statsd UDP messages.
 bind: 127.0.0.1
 port: 8125
 
 # Flush interval should be your finest retention in seconds
-flush_interval: 10
+flush_interval: 5
 
 # Graphite
 graphite_host: localhost
 graphite_port: 2003
+
+# Forwarding sends copies of incoming UDP statsd messages to other
+# destinations.
+# This allows for bundling of many senders into one UDP flow/stream, or
+# directs stats to redundant carbon caches.
+#
+forwarding: false
+# Example destinations:
+#forwarding_destinations:
+#- hostname: localhost
+#  port: 9000
+#- hostname: 127.0.0.1
+#  port: 9001
