@@ -15,10 +15,11 @@ graphite_port: 2003
 # This allows for bundling of many senders into one UDP flow/stream, or
 # directs stats to redundant carbon caches.
 #
-forwarding: false
+forwarding: true
+forwarding_socket_lifetime: 10
 # Example destinations:
-#forwarding_destinations:
-#- hostname: localhost
-#  port: 9000
-#- hostname: 127.0.0.1
-#  port: 9001
+forwarding_destinations:
+- hostname: localhost
+  port: 9000
+- hostname: 127.0.0.1
+  port: 9001
