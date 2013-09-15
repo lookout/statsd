@@ -3,6 +3,8 @@
 $LOAD_PATH.unshift File.expand_path(File.dirname(__FILE__) + '/../lib')
 require 'yaml'
 require 'optparse'
+require 'rubygems'
+require 'pry'
 
 begin
   ORIGINAL_ARGV = ARGV.dup
@@ -15,7 +17,7 @@ begin
     opts.separator "Options:"
 
     opts.on("-cCONFIG", "--config-file CONFIG", "Configuration file") do |x|
-      options[:config] = x
+      options[:config_file] = x
     end
 
     opts.on("-h", "--help", "Show this message") do
@@ -27,12 +29,11 @@ begin
   parser.parse!
 
   # dispatch
-  if !options[:config]
+  if !options[:config_file]
     puts parser.help
   else
     require 'statsd'
-    require 'statsd/server'
-    Statsd::Server::Daemon.new.run(options)
+    Statsd::Daemon.new.run(options)
   end
 rescue Exception => e
   if e.instance_of?(SystemExit)
