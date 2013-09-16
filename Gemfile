@@ -11,6 +11,11 @@ group :test do
 
   gem "rspec"
   gem "cucumber"
+
+  gem 'guard'
+  gem 'guard-rspec'
+  gem 'pry'
 end
+
 
 gemspec
