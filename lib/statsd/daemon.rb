@@ -62,6 +62,7 @@ module Statsd
             Statsd::Forwarder.set_destinations(config['forwarding_destinations'])
             MessageDispatchDaemon.register_receiver(Statsd::Forwarder)
 
+            Statsd::Forwarder.build_fresh_sockets
             EventMachine::add_periodic_timer(config['forwarding_socket_lifetime']) do
               Statsd::Forwarder.build_fresh_sockets
             end
