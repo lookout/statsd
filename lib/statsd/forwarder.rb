@@ -37,8 +37,8 @@ module Statsd
           s.connect destination['hostname'], destination['port']
           @@sockets[destination] = s
           true
-        rescue SocketError
-          puts "ERROR: Couldn't create a socket to #{destination}/#{port}. Pruning destination from Forwarder. (#{e.inspect})"
+        rescue SocketError => e
+          puts "ERROR: Couldn't create a socket to #{destination['hostname']}/#{destination['port']}. Pruning destination from Forwarder. (#{e.inspect})"
           false
         end
       end
