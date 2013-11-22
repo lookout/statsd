@@ -12,8 +12,8 @@ group :test do
   gem "rspec"
   gem "cucumber"
 
-  gem 'guard'
-  gem 'guard-rspec'
+  gem 'guard', "< 2.0"
+  gem 'guard-rspec', "< 4.0"
   gem 'pry'
 end
 

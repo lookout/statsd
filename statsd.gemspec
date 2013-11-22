@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = ">= 1.3.6"
 
-  s.add_dependency "eventmachine",  ">= 0.12.10", "< 0.15.0"
+  s.add_dependency "eventmachine",  ">= 0.12.10", "< 0.15.2"
   s.add_dependency "erubis",        ">= 2.6.6"
 
   s.files        = `git ls-files`.split("\n")
