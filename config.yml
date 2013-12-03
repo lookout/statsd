@@ -23,3 +23,9 @@ forwarding_destinations:
   port: 9000
 - hostname: 127.0.0.1
   port: 9001
+
+# HTTP Health checking mechanism provides a way to see if the daemon is alive
+# and stats are flowing in.
+# Optional.
+http_health_enabled: true
+http_health_port: 8180

@@ -1,6 +1,7 @@
 source "https://rubygems.org"
 
 gem "rake"
+gem "json"
 
 group :test do
   if RUBY_VERSION > "1.9"

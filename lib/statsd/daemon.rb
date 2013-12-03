@@ -69,6 +69,14 @@ module Statsd
           end
           ##
 
+          ## HTTP health checking
+          if config['http_health_enabled']
+            Statsd::HTTPHealth::MessageHandler.begin
+            MessageDispatchDaemon.register_receiver(Statsd::HTTPHealth::MessageHandler)
+            EventMachine::start_server('0.0.0.0', config['http_health_port'], Statsd::HTTPHealth::Server)
+          end
+          ##
+
           puts "Going to listen on #{config['bind']}:#{config['port']}"
           EventMachine::open_datagram_socket(config['bind'], config['port'], MessageDispatchDaemon)
         end
