@@ -1,5 +1,53 @@
-nc -w 1 -u 127.0.0.1 8125 << EOF
-globs:1|c
-gorets:1|c|@0.1
-glork:320|ms
-EOF
+nc -w 0 -u 127.0.0.1 8125 "globs:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "gorets:1|c|@0.1"&
+nc -w 0 -u 127.0.0.1 8125 "glork:320|ms"&
+nc -w 0 -u 127.0.0.1 8125 "88I2bhLP4k:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "T6CsT6RDvk:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "dJOCTit3tP:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "k4HeDIRIa3:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "JEc3cECKj9:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "TXOGeODv0H:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "RN3uU1Bkr0:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "XJdHBh37Uy:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "R3J4IdiOta:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "PezJMFL98r:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "T7eOCQS9Iw:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "NgxVWt3uME:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "M74aOdV1TG:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "c53wyPJcvg:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "gKnOIx5W0j:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "RXMVWTYpl8:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "XVFgH7rcnU:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "b7iuF4HOjU:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "kkkp3SNf0K:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "ETbn3whGjE:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "znf449U4p5:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "TUdGe6VYHV:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "pxtcgRWp8a:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "leOD3CgFPK:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "DFfh76UUsL:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "gPyvlrP8P8:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "SXVqQknEL4:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "MS9rKzH2n2:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "oigpDgwEL1:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "VTcEE9x49w:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "gDl1qcYlkz:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "ysh4HtOMBK:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "Bf4ANRWQYM:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "cs0DZ1X0Zp:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "1HlR7p5HJA:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "eFW5dfywWU:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "xeGaS0rpgP:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "Wvi96A2D8c:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "KZBdsSFLA7:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "K0bUrkRIg3:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "2fgC0Inpe4:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "cri6kit6dW:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "yZtYNVASg3:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "DYTZjo8ypc:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "bCzc2ifnf4:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "n7hUByOoyF:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "4fWg6fpyBH:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "cKcR3Ro9x7:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "r2rErLCrGw:1|c"&
+nc -w 0 -u 127.0.0.1 8125 "xZy9xpA8oa:1|c"&

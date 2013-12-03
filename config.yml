@@ -10,7 +10,7 @@ flush_interval: 5
 graphite_host: localhost
 graphite_port: 2003
 
-# Forwarding sends copies of incoming UDP statsd messages to other
+# Forwarding optionally sends copies of incoming UDP statsd messages to other
 # destinations.
 # This allows for bundling of many senders into one UDP flow/stream, or
 # directs stats to redundant carbon caches.
