@@ -121,7 +121,9 @@ module Statsd
     # use "around_filter Statsd::Rails::ActionTimerFilter"
     class ActionTimerFilter
       def self.filter(controller, &block)
-        key = "requests.#{controller.controller_name}.#{controller.params[:action]}"
+        # Use params[:controller] insted of controller.controller_name to get full path.
+        controller_name = controller.params[:controller].gsub("/", ".")
+        key = "requests.#{controller_name}.#{controller.params[:action]}"
         Statsd.instance.timing(key, &block)
       end
     end

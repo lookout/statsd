@@ -1,5 +1,7 @@
 /pkg
 .rvmrc
+.ruby-version
+.ruby-gemset
 Gemfile.lock
 tmp
 tmp/*
