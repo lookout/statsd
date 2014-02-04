@@ -45,6 +45,7 @@ module Statsd
       EventMachine::run do
         ## statsd->graphite aggregation
         if config['graphite_host']
+          puts "INFO: Aggregating data and sending to Graphite (#{config['graphite_host']}:#{config['graphite_port']})"
           MessageDispatchDaemon.register_receiver(Statsd::Aggregator)
           EventMachine::add_periodic_timer(config['flush_interval']) do
             counters,timers = Statsd::Aggregator.get_and_clear_stats!
@@ -55,23 +56,33 @@ module Statsd
               conn.flush_stats
             end
           end
-          ##
-
-          ## statsd->statsd data relay
-          if config['forwarding']
-            Statsd::Forwarder.set_destinations(config['forwarding_destinations'])
-            MessageDispatchDaemon.register_receiver(Statsd::Forwarder)
-
-            Statsd::Forwarder.build_fresh_sockets
-            EventMachine::add_periodic_timer(config['forwarding_socket_lifetime']) do
-              Statsd::Forwarder.build_fresh_sockets
-            end
-          end
-          ##
-
-          puts "Going to listen on #{config['bind']}:#{config['port']}"
-          EventMachine::open_datagram_socket(config['bind'], config['port'], MessageDispatchDaemon)
         end
+        ##
+
+        ## statsd->statsd data relay
+        if config['forwarding']
+          puts "INFO: Forwarding data to #{forwarding_destinations.inspect.gsub(/\n/,'')}"
+          Statsd::Forwarder.set_destinations(config['forwarding_destinations'])
+          MessageDispatchDaemon.register_receiver(Statsd::Forwarder)
+
+          Statsd::Forwarder.build_fresh_sockets
+          EventMachine::add_periodic_timer(config['forwarding_socket_lifetime']) do
+            Statsd::Forwarder.build_fresh_sockets
+          end
+        end
+        ##
+
+        ## HTTP health checking
+        if config['http_health_enabled']
+          puts "INFO: HTTP Health checking daemon enabled on port #{config['http_health_port']}"
+          Statsd::HTTPHealth::MessageHandler.begin
+          MessageDispatchDaemon.register_receiver(Statsd::HTTPHealth::MessageHandler)
+          EventMachine::start_server('0.0.0.0', config['http_health_port'], Statsd::HTTPHealth::Server)
+        end
+        ##
+
+        puts "Going to listen on #{config['bind']}:#{config['port']}"
+        EventMachine::open_datagram_socket(config['bind'], config['port'], MessageDispatchDaemon)
       end
     end
   end

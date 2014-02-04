@@ -5,6 +5,7 @@ require 'statsd/graphite'
 require 'statsd/aggregator'
 require 'statsd/forwarder'
 require 'statsd/test'
+require 'statsd/http_health'
 
 module Statsd
   # initialize singleton instance in an initializer
