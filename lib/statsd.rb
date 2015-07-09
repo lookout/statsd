@@ -1,10 +1,5 @@
 require 'socket'
 require 'resolv'
-require 'statsd/daemon'
-require 'statsd/graphite'
-require 'statsd/aggregator'
-require 'statsd/forwarder'
-require 'statsd/test'
 
 module Statsd
   # initialize singleton instance in an initializer
