@@ -1,35 +1,10 @@
 # StatsD
 
-A network daemon for aggregating statistics (counters and timers), rolling them up, then sending them to [graphite][graphite].
-
+A very simple client to format and send metrics to a StatsD server.
 
 ### Installation
 
     gem install statsd
-
-### Configuration
-
-Create config.yml to your liking.
-
-Example config.yml
-    ---
-    bind: 127.0.0.1
-    port: 8125
-
-    # Flush interval should be your finest retention in seconds
-    flush_interval: 10
-
-    # Graphite
-    graphite_host: localhost
-    graphite_port: 2003
-
-
-
-### Server
-Run the server:
-
-Flush to Graphite (default):
-    statsd -c config.yml
 
 ### Client
 In your client code:
@@ -47,48 +22,12 @@ In your client code:
     STATSD.timing('some_job_time', 20) # reporting job that took 20ms
     STATSD.timing('some_job_time', 20, 0.05) # reporting job that took 20ms with sampling (5% sampling)
 
-Concepts
---------
-
-* *buckets*
-  Each stat is in it's own "bucket". They are not predefined anywhere. Buckets can be named anything that will translate to Graphite (periods make folders, etc)
-
-* *values*
-  Each stat will have a value. How it is interpreted depends on modifiers
-
-* *flush*
-  After the flush interval timeout (default 10 seconds), stats are munged and sent over to Graphite.
-
-Counting
---------
-
-    gorets:1|c
-
-This is a simple counter. Add 1 to the "gorets" bucket. It stays in memory until the flush interval.
-
-
-Timing
-------
-
-    glork:320|ms
-
-The glork took 320ms to complete this time. StatsD figures out 90th percentile, average (mean), lower and upper bounds for the flush interval.
-
-Sampling
---------
-
-    gorets:1|c|@0.1
-
-Tells StatsD that this counter is being sent sampled ever 1/10th of the time.
-
-
 Guts
 ----
 
 * [UDP][udp]
   Client libraries use UDP to send information to the StatsD daemon.
 
-* [EventMachine][eventmachine]
 * [Graphite][graphite]
 
 
@@ -123,4 +62,3 @@ StatsD was inspired (heavily) by the project (of the same name) at Flickr. Here'
 [etsy]: http://www.etsy.com
 [blog post]: http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
 [udp]: http://enwp.org/udp
-[eventmachine]: http://rubyeventmachine.com/

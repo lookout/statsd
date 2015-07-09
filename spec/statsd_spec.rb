@@ -2,6 +2,13 @@ require 'spec_helper'
 
 describe Statsd do
   describe '#create_instance' do
+    before(:each) do
+      # Make sure prior test hasn't already invoked create_instance
+      if Statsd.class_variable_defined?(:@@instance)
+        Statsd.send(:remove_class_variable, :@@instance)
+      end
+    end
+
     after(:each) do
       Statsd.send(:remove_class_variable, :@@instance)
     end
