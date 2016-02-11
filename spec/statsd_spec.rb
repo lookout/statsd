@@ -55,6 +55,48 @@ describe Statsd::Client do
       c = Statsd::Client.new(:prefix => prefix)
       c.prefix.should match(prefix)
     end
+
+    it 'should accept a :resolve_always keyword argument' do
+      lookup = false
+      c = Statsd::Client.new(:resolve_always => lookup)
+      c.resolve_always.should be(lookup)
+    end
+
+    context 'when :resolve_always is not specified' do
+
+      context 'when host is localhost or 127.0.0.1' do
+        it ':resolve_always should default to false' do
+          c = Statsd::Client.new(:host => 'localhost')
+          c.resolve_always.should be(false)
+        end
+      end
+
+      context 'when host is not local' do
+        it ':resolve_always should default to true' do
+          c = Statsd::Client.new(:host => 'statsd.example.example')
+          c.resolve_always.should be(true)
+        end
+      end
+
+    end
+
+  end
+
+  describe '#send_stats' do
+
+    it 'should use cached resolve address when :resolve_always is false' do
+      c = Statsd::Client.new(:resolve_always => false)
+      sock = c.instance_variable_get(:@socket)
+      expect(sock).to receive(:send).with(anything, 0)
+      c.increment('foo')
+    end
+
+    it 'should always resolve address when :resolve_always is true' do
+      c = Statsd::Client.new(:resolve_always => true)
+      sock = c.instance_variable_get(:@socket)
+      expect(sock).to receive(:send).with(anything, 0, c.host, c.port)
+      c.increment('foo')
+    end
   end
 
   describe '#timing' do
