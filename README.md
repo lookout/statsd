@@ -11,7 +11,7 @@ In your client code:
 
     require 'rubygems'
     require 'statsd'
-    STATSD = Statsd::Client.new('localhost',8125)
+    STATSD = Statsd::Client.new(:host => 'localhost', :port => 8125)
 
     STATSD.increment('some_counter') # basic incrementing
     STATSD.increment('system.nested_counter', 0.1) # incrementing with sampling (10%)
@@ -21,6 +21,27 @@ In your client code:
 
     STATSD.timing('some_job_time', 20) # reporting job that took 20ms
     STATSD.timing('some_job_time', 20, 0.05) # reporting job that took 20ms with sampling (5% sampling)
+
+There is an option for reduced DNS lookups, you can specify an additional
+constructor option `:resolve_always` and set it to `false`. By default, the
+client will always resolve the address unless `host` is set to 'localhost' or
+'127.0.0.1'.
+
+    require 'rubygems'
+    require 'statsd'
+
+    STATSD = Statsd::Client.new(:host => 'specialstats.host.example',
+                                :port => '8125',
+                                :resolve_always => false)
+
+    STATSD.increment('some_counter') # basic incrementing
+
+#### Note about thread-safety
+
+Since class variables and instance variables are not thread-safe on
+initialization, there is a potential for multiple UDP sockets being opened upon
+if you are using a truly multithreaded ruby, i.e. JRuby. Make sure to take that
+in to account when initializing this library.
 
 Guts
 ----

@@ -15,12 +15,16 @@ module Statsd
   end
 
   class Client
-    attr_accessor :host, :port, :prefix
+    attr_accessor :host, :port, :prefix, :resolve_always
 
     def initialize(opts={})
       @host = opts[:host] || 'localhost'
       @port = opts[:port] || 8125
       @prefix = opts[:prefix]
+      # set resolve_always to true unless localhost or specified
+      @resolve_always = opts.fetch(:resolve_always, !is_localhost?)
+      @socket = UDPSocket.new
+      @send_data = send_method
     end
 
     def host_ip_addr
@@ -98,15 +102,30 @@ module Statsd
       raise "host and port must be set" unless host && port
 
       begin
-        sock = UDPSocket.new
         data.each do |d|
-          sock.send(d, 0, host, port)
+          @send_data[d]
         end
       rescue # silent but deadly
-      ensure
-        sock.close
       end
       true
+    end
+
+    def socket_connect!
+      @socket.connect(@host, @port)
+    end
+
+    # Curries the send based on if we need to lookup dns every time we send
+    def send_method
+      if resolve_always
+        lambda {|data| @socket.send(data, 0, @host, @port)}
+      else
+        socket_connect!
+        lambda {|data| @socket.send(data, 0)}
+      end
+    end
+
+    def is_localhost?
+      @host == 'localhost' || @host == '127.0.0.1'
     end
 
   end
