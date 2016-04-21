@@ -1,10 +1,13 @@
 language: ruby
-
 rvm:
 - jruby
 - 2.1
 - 1.9.3
-
+deploy:
+  provider: rubygems
+  api_key:
+    secure: Jn+Jg5QeknmLOrcjXzatz2ZcnV2JT6jlVoVtqLflkIAQ71NwtkCbRvZw7ry5DjVE05rLWEm2n/83WnczuNUwine4oPd6jK/eUKl7qzL/swmgmKV1Jt/QbQIqlTPnCBLnmIaO89NNi+xiEFeGZ/sUK+WpvRQZDQ84G7zzDlaO8zs=
+  skip_cleanup: true
 install:
- - "gem install bundler"
- - "bundle install --jobs=3 --retry=3"
+- gem install bundler
+- bundle install --jobs=3 --retry=3
