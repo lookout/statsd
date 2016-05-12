@@ -6,7 +6,7 @@ rvm:
 deploy:
   provider: rubygems
   api_key:
-    secure: Jn+Jg5QeknmLOrcjXzatz2ZcnV2JT6jlVoVtqLflkIAQ71NwtkCbRvZw7ry5DjVE05rLWEm2n/83WnczuNUwine4oPd6jK/eUKl7qzL/swmgmKV1Jt/QbQIqlTPnCBLnmIaO89NNi+xiEFeGZ/sUK+WpvRQZDQ84G7zzDlaO8zs=
+    secure: K0EJp103qehnVgoM+OF1pkafiymE7bH0mscBW6NdkoxNVmyNChgb7BjkQQ+0k4W7t76Ej9Ce1brzqgEjN4+vCkO5UPIjWdj8Nd8nUw05LJNj56Dcpi/a/g3iswFlXTdR8XBf4Zww9e5QTGWhJ+o7oBxwp2dVEcFX4p+S8i8r0T0=
   skip_cleanup: true
 install:
 - gem install bundler
