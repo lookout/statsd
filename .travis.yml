@@ -5,9 +5,10 @@ rvm:
 - 1.9.3
 deploy:
   provider: rubygems
-  api_key:
-    secure: K0EJp103qehnVgoM+OF1pkafiymE7bH0mscBW6NdkoxNVmyNChgb7BjkQQ+0k4W7t76Ej9Ce1brzqgEjN4+vCkO5UPIjWdj8Nd8nUw05LJNj56Dcpi/a/g3iswFlXTdR8XBf4Zww9e5QTGWhJ+o7oBxwp2dVEcFX4p+S8i8r0T0=
-  skip_cleanup: true
+  api_key: 701b3f137a894afa3dca9390da8b3afe
+  gem: lookout-statsd
+  on:
+    repo: lookout/statsd
 install:
 - gem install bundler
 - bundle install --jobs=3 --retry=3
