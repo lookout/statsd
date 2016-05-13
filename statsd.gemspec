@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name        = "lookout-statsd"
-  s.version     = "1.1.0"
+  s.version     = "2.0.0"
   s.platform    = Gem::Platform::RUBY
 
   s.authors     = ['R. Tyler Croy', 'Andrew Coldham', 'Ben VandenBos']
