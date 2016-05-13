@@ -190,4 +190,18 @@ describe Statsd::Client do
       c.gauge('foo' => 1)
     end
   end
+
+  describe '#batch' do
+    let(:c) { Statsd::Client.new }
+    subject { c.batch { |b| b.increment('foo'); b.increment('bar'); } }
+
+    it 'should take a block and put increments into a buffer' do
+      Statsd::Batch.any_instance do |b|
+        b.backlog.should_receive(:<<).exactly.twice
+      end
+      Statsd::Batch.any_instance.should_receive(:flush).and_call_original
+      c.should_receive(:send_data).once
+      subject
+    end
+  end
 end

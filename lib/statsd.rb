@@ -15,11 +15,12 @@ module Statsd
   end
 
   class Client
-    attr_accessor :host, :port, :prefix, :resolve_always
+    attr_accessor :host, :port, :prefix, :resolve_always, :batch_size
 
     def initialize(opts={})
       @host = opts[:host] || 'localhost'
       @port = opts[:port] || 8125
+      @batch_size = opts[:batch_size] || 10
       @prefix = opts[:prefix]
       # set resolve_always to true unless localhost or specified
       @resolve_always = opts.fetch(:resolve_always, !is_localhost?)
@@ -81,6 +82,22 @@ module Statsd
                  })
     end
 
+    # Creates and yields a Batch that can be used to batch instrument reports into
+    # larger packets. Batches are sent either when the packet is "full" (defined
+    # by batch_size), or when the block completes, whichever is the sooner.
+    #
+    # Good artists copy https://github.com/reinh/statsd/blob/master/lib/statsd.rb#L410
+    #
+    # @yield [Batch] a statsd subclass that collects and batches instruments
+    # @example Batch two instument operations:
+    #   $statsd.batch do |batch|
+    #     batch.increment 'sys.requests'
+    #     batch.gauge('user.count', User.count)
+    #   end
+    def batch(&block)
+      Batch.new(self).easy(&block)
+    end
+
     private
 
     def send_stats(data, sample_rate = 1)
@@ -127,7 +144,80 @@ module Statsd
     def is_localhost?
       @host == 'localhost' || @host == '127.0.0.1'
     end
+  end
 
+  # Some more unabashed borrowing: https://github.com/reinh/statsd/blob/master/lib/statsd.rb#L410
+  # The big difference between this implementation and reinh's is that we don't support namespaces,
+  # and we have a bunch of hacks for introducing prefixes to the namespaces we're acting against.
+  # = Batch: A batching statsd proxy
+  #
+  # @example Batch a set of instruments using Batch and manual flush:
+  #   $statsd = Statsd.new 'localhost', 8125
+  #   batch = Statsd::Batch.new($statsd)
+  #   batch.increment 'garets'
+  #   batch.timing 'glork', 320
+  #   batch.gauge 'bork', 100
+  #   batch.flush
+  #
+  # Batch is a subclass of Statsd, but with a constructor that proxies to a
+  # normal Statsd instance. It has it's own batch_size parameters
+  # (that inherit defaults from the supplied Statsd instance). It is recommended
+  # that some care is taken if setting very large batch sizes. If the batch size
+  # exceeds the allowed packet size for UDP on your network, communication
+  # troubles may occur and data will be lost.
+  class Batch < Statsd::Client
+
+    extend Forwardable
+    def_delegators :@statsd,
+                   :host, :host=,
+                   :port, :port=,
+                   :prefix,
+                   :postfix,
+                   :delimiter, :delimiter=
+
+    attr_accessor :batch_size
+
+    # @param [Statsd] requires a configured Statsd instance
+    def initialize(statsd)
+      @statsd = statsd
+      @batch_size = statsd.batch_size
+      @backlog = []
+      @send_data = send_method
+    end
+
+    # @yields [Batch] yields itself
+    #
+    # A convenience method to ensure that data is not lost in the event of an
+    # exception being thrown. Batches will be transmitted on the parent socket
+    # as soon as the batch is full, and when the block finishes.
+    def easy
+      yield self
+    ensure
+      flush
+    end
+
+    def flush
+      unless @backlog.empty?
+        @statsd.send_data @backlog.join("\n")
+        @backlog.clear
+      end
+    end
+
+    def send_batch_data(message)
+      @backlog << message
+      if @backlog.size >= @batch_size
+        flush
+      end
+    end
+
+    def send_method
+      lambda { |data|
+        @backlog << data
+        if @backlog.size >= @batch_size
+          flush
+        end
+      }
+    end
   end
 
   module Rails
