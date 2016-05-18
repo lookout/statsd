@@ -18,10 +18,15 @@ describe Statsd do
       Statsd.instance.should_not be nil
     end
 
-    it 'should raise if called twice' do
-      Statsd.create_instance
-      expect { Statsd.create_instance }.to raise_error
+    context 'if an instance has been created' do
+      before :each do
+        Statsd.create_instance
+      end
+      it 'should raise if called twice' do
+        expect { Statsd.create_instance }.to raise_error
+      end
     end
+
   end
 
   describe '#instance' do
