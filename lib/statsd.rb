@@ -83,6 +83,10 @@ module Statsd
                  })
     end
 
+    def send_data(*args)
+      @send_data.call(*args)
+    end
+
     # Creates and yields a Batch that can be used to batch instrument reports into
     # larger packets. Batches are sent either when the packet is "full" (defined
     # by batch_size), or when the block completes, whichever is the sooner.
