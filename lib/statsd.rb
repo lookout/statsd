@@ -1,5 +1,6 @@
 require 'socket'
 require 'resolv'
+require 'forwardable'
 
 module Statsd
   # initialize singleton instance in an initializer
