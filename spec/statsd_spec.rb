@@ -1,26 +1,21 @@
 require 'spec_helper'
 
 describe Statsd do
-  describe '#create_instance' do
-    before(:each) do
-      # Make sure prior test hasn't already invoked create_instance
-      if Statsd.class_variable_defined?(:@@instance)
-        Statsd.send(:remove_class_variable, :@@instance)
-      end
-    end
-
-    after(:each) do
+  before(:each) do
+    # Make sure prior test hasn't already invoked create_instance
+    if Statsd.class_variable_defined?(:@@instance)
       Statsd.send(:remove_class_variable, :@@instance)
     end
+  end
 
+  describe '#create_instance' do
     it 'should create an instance' do
       Statsd.create_instance
       Statsd.instance.should_not be nil
     end
 
     it 'should raise if called twice' do
-      Statsd.create_instance
-      expect { Statsd.create_instance }.to raise_error
+      expect { Statsd.create_instance; Statsd.create_instance }.to raise_error
     end
   end
 
