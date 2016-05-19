@@ -97,7 +97,7 @@ module Statsd
     # @example Batch two instument operations:
     #   $statsd.batch do |batch|
     #     batch.increment 'sys.requests'
-    #     batch.gauge('user.count', User.count)
+    #     batch.gauge {'user.count' => User.count}
     #   end
     def batch(&block)
       Batch.new(self).easy(&block)
@@ -161,7 +161,7 @@ module Statsd
   #   batch = Statsd::Batch.new($statsd)
   #   batch.increment 'garets'
   #   batch.timing 'glork', 320
-  #   batch.gauge 'bork', 100
+  #   batch.gauge 'bork': 100
   #   batch.flush
   #
   # Batch is a subclass of Statsd, but with a constructor that proxies to a
@@ -172,14 +172,6 @@ module Statsd
   # troubles may occur and data will be lost.
   class Batch < Statsd::Client
 
-    extend Forwardable
-    def_delegators :@statsd,
-                   :host, :host=,
-                   :port, :port=,
-                   :prefix,
-                   :postfix,
-                   :delimiter, :delimiter=
-
     attr_accessor :batch_size
 
     # @param [Statsd] requires a configured Statsd instance
@@ -188,6 +180,9 @@ module Statsd
       @batch_size = statsd.batch_size
       @backlog = []
       @send_data = send_method
+      @host = statsd.host
+      @port = statsd.port
+      @prefix = statsd.prefix
     end
 
     # @yields [Batch] yields itself
