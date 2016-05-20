@@ -210,3 +210,112 @@ describe Statsd::Client do
     end
   end
 end
+
+describe Statsd::Batch do
+  let(:c) { Statsd::Client.new :host => 'foo.com', :prefix => 'my.app', :port => 1234, :batch_size => 20 }
+
+  it 'should delegate fields correctly' do
+    c.batch do |b|
+      expect(b.host).to eql 'foo.com'
+      expect(b.prefix).to eql 'my.app'
+      expect(b.port).to eql 1234
+      expect(b.batch_size).to eql 20
+    end
+  end
+
+  describe '#gauge' do
+    it 'should apply the prefix correctly' do
+      c.batch do |b|
+        b.should_receive(:send_stats).with(["my.app.an_incrementer:2|g"])
+        b.gauge({'an_incrementer' => 2})
+      end
+    end
+  end
+
+  describe '#timing' do
+
+    before :each do
+      c.prefix = nil
+    end
+
+    it 'should pass the sample rate along' do
+      sample = 10
+      c.batch do |b|
+        b.should_receive(:send_stats).with(anything(), sample)
+        b.timing('foo', 1, sample)
+      end
+    end
+
+    it 'should use the right stat name' do
+      c.batch do |b|
+        b.should_receive(:send_stats).with('foo:1|ms', anything())
+        b.timing('foo', 1)
+      end
+    end
+
+    it 'should prefix its stats if it has a prefix' do
+      c.prefix = 'dev'
+      c.batch do |b|
+        b.should_receive(:send_stats).with('dev.foo:1|ms', anything())
+        b.timing('foo', 1)
+      end
+    end
+
+    it 'should wrap a block correctly' do
+      # Pretend our block took one second
+      c.batch do |b|
+        b.should_receive(:send_stats).with('foo:1000|ms', anything())
+        Time.stub_chain(:now, :to_f).and_return(1, 2)
+
+        b.timing('foo') do
+          true.should be true
+        end
+      end
+    end
+
+    it 'should return the return value from the block' do
+      # Pretend our block took one second
+      c.batch do |b|
+        b.should_receive(:send_stats).with('foo:1000|ms', anything())
+        Time.stub_chain(:now, :to_f).and_return(1, 2)
+
+        value = b.timing('foo') { 1337 }
+        value.should == 1337
+      end
+    end
+  end
+
+  describe '#increment' do
+    it 'should update the counter by 1' do
+      c.should_receive(:update_counter).with('foo', 1, anything())
+      c.increment('foo')
+    end
+  end
+
+  describe '#decrement' do
+    it 'should update the counter by -1' do
+      c.batch do |b|
+        b.should_receive(:update_counter).with('foo', -1, anything())
+        b.decrement('foo')
+      end
+    end
+  end
+
+  describe '#update_counter' do
+    it 'should prepend the prefix if it has one' do
+      c.prefix = 'dev'
+      c.batch do |b|
+        b.should_receive(:send_stats).with(['dev.foo:123|c'], anything())
+        b.update_counter('foo', 123)
+      end
+    end
+
+    it 'should prepend multiple prefixes if it has one' do
+      c.prefix = 'dev'
+      c.batch do |b|
+        b.should_receive(:send_stats).with(['dev.foo:123|c', 'dev.bar:123|c'], anything())
+        b.update_counter(['foo', 'bar'], 123)
+      end
+    end
+  end
+end
