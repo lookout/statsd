@@ -181,18 +181,50 @@ describe Statsd::Client do
   describe '#gauge' do
     let(:c) { Statsd::Client.new }
 
-    it 'should encode the values correctly' do
-      c.should_receive(:send_stats).with do |array|
-        array.should include('foo:1|g')
-        array.should include('bar:2|g')
+    context "called with a Hash" do
+      it 'should encode the values correctly' do
+        c.should_receive(:send_stats).with do |array|
+          array.should include('foo:1|g')
+          array.should include('bar:2|g')
+        end
+        c.gauge('foo' => 1, 'bar' => 2)
       end
-      c.gauge('foo' => 1, 'bar' => 2)
+
+      it 'should prepend the prefix if it has one' do
+        c.prefix = 'dev'
+        c.should_receive(:send_stats).with(['dev.foo:1|g'])
+        c.gauge('foo' => 1)
+      end
     end
 
-    it 'should prepend the prefix if it has one' do
-      c.prefix = 'dev'
-      c.should_receive(:send_stats).with(['dev.foo:1|g'])
-      c.gauge('foo' => 1)
+    context "called with String+Value" do
+      context "without specifying options" do
+        it 'should encode the values correctly' do
+          c.should_receive(:send_stats).with('foo:1|g')
+          c.gauge('foo', 1)
+        end
+
+        it 'should prepend the prefix if it has one' do
+          c.prefix = 'dev'
+          c.should_receive(:send_stats).with('dev.foo:1|g')
+          c.gauge('foo', 1)
+        end
+      end
+
+      context "specifying options" do
+        let(:opts) { {:ignored => true} }
+
+        it 'should encode the values correctly' do
+          c.should_receive(:send_stats).with('foo:1|g')
+          c.gauge('foo', 1, opts)
+        end
+
+        it 'should prepend the prefix if it has one' do
+          c.prefix = 'dev'
+          c.should_receive(:send_stats).with('dev.foo:1|g')
+          c.gauge('foo', 1, opts)
+        end
+      end
     end
   end
 

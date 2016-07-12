@@ -73,14 +73,26 @@ module Statsd
       send_stats(stats.map { |s| "#{p}#{s}:#{delta}|c" }, sample_rate)
     end
 
-    # +stats+ is a hash
-    def gauge(stats)
-      send_stats(stats.map { |s,val|
-                   if @prefix
-                     s = "#{@prefix}.#{s}"
-                   end
-                   "#{s}:#{val}|g"
-                 })
+    # +stat_or_stats+ may either be a Hash OR a String. If it's a
+    # String, then value must be specified. Other statsd client gems
+    # have mostly standardized on using the String+value format, but
+    # this gem traditionally supported just a Hash. This now supports
+    # both for compatibility.
+    def gauge(stat_or_stats, value=nil, opts=nil)
+      # Can't use duck-typing here, since String responds to :map
+      if stat_or_stats.is_a?(Hash)
+        send_stats(stat_or_stats.map { |s,val|
+                     if @prefix
+                       s = "#{@prefix}.#{s}"
+                     end
+                     "#{s}:#{val}|g"
+                   })
+      else
+        if @prefix
+          stat_or_stats = "#{@prefix}.#{stat_or_stats}"
+        end
+        send_stats("#{stat_or_stats}:#{value}|g")
+      end
     end
 
     def send_data(*args)
