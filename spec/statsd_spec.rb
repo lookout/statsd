@@ -1,69 +1,83 @@
 require 'spec_helper'
 
-describe Statsd do
-  describe '#create_instance' do
-    before(:each) do
-      # Make sure prior test hasn't already invoked create_instance
-      if Statsd.class_variable_defined?(:@@instance)
-        Statsd.send(:remove_class_variable, :@@instance)
-      end
-    end
+describe Lookout::Statsd do
+  before(:each) do
+    described_class.clear_instance
+  end
 
-    after(:each) do
-      Statsd.send(:remove_class_variable, :@@instance)
-    end
+  after(:each) do
+    described_class.clear_instance
+  end
 
+  describe '.create_instance' do
     it 'should create an instance' do
-      Statsd.create_instance
-      Statsd.instance.should_not be nil
+      described_class.create_instance
+      described_class.instance.should_not be nil
     end
 
     context 'if an instance has been created' do
       before :each do
-        Statsd.create_instance
+        described_class.create_instance
       end
       it 'should raise if called twice' do
-        expect { Statsd.create_instance }.to raise_error
+        expect { described_class.create_instance }.to raise_error
       end
     end
+  end
 
+  describe '.set_instance' do
+    let(:instance) { double('Statsd') }
+
+    it 'should set instance' do
+      described_class.set_instance(instance)
+      expect(described_class.instance).to eq instance
+    end
+
+    context 'if an instance has been created' do
+      before :each do
+        described_class.set_instance(instance)
+      end
+      it 'should raise if called twice' do
+        expect { described_class.set_instance(instance) }.to raise_error
+      end
+    end
   end
 
   describe '#instance' do
     it 'should raise if not created' do
-      expect { Statsd.instance }.to raise_error
+      expect { described_class.instance }.to raise_error
     end
   end
 end
 
-describe Statsd::Client do
+describe Lookout::StatsdClient do
   describe '#initialize' do
     it 'should work without arguments' do
-      c = Statsd::Client.new
+      c = Lookout::StatsdClient.new
       c.should_not be nil
     end
 
     it 'should accept a :host keyword argument' do
       host = 'zombo.com'
-      c = Statsd::Client.new(:host => host)
+      c = Lookout::StatsdClient.new(:host => host)
       c.host.should match(host)
     end
 
     it 'should accept a :port keyword argument' do
       port = 1337
-      c = Statsd::Client.new(:port => port)
+      c = Lookout::StatsdClient.new(:port => port)
       c.port.should == port
     end
 
     it 'should accept a :prefix keyword argument' do
       prefix = 'dev'
-      c = Statsd::Client.new(:prefix => prefix)
+      c = Lookout::StatsdClient.new(:prefix => prefix)
       c.prefix.should match(prefix)
     end
 
     it 'should accept a :resolve_always keyword argument' do
       lookup = false
-      c = Statsd::Client.new(:resolve_always => lookup)
+      c = Lookout::StatsdClient.new(:resolve_always => lookup)
       c.resolve_always.should be(lookup)
     end
 
@@ -71,14 +85,14 @@ describe Statsd::Client do
 
       context 'when host is localhost or 127.0.0.1' do
         it ':resolve_always should default to false' do
-          c = Statsd::Client.new(:host => 'localhost')
+          c = Lookout::StatsdClient.new(:host => 'localhost')
           c.resolve_always.should be(false)
         end
       end
 
       context 'when host is not local' do
         it ':resolve_always should default to true' do
-          c = Statsd::Client.new(:host => 'statsd.example.example')
+          c = Lookout::StatsdClient.new(:host => 'statsd.example.example')
           c.resolve_always.should be(true)
         end
       end
@@ -90,14 +104,14 @@ describe Statsd::Client do
   describe '#send_stats' do
 
     it 'should use cached resolve address when :resolve_always is false' do
-      c = Statsd::Client.new(:resolve_always => false)
+      c = Lookout::StatsdClient.new(:resolve_always => false)
       sock = c.instance_variable_get(:@socket)
       expect(sock).to receive(:send).with(anything, 0)
       c.increment('foo')
     end
 
     it 'should always resolve address when :resolve_always is true' do
-      c = Statsd::Client.new(:resolve_always => true)
+      c = Lookout::StatsdClient.new(:resolve_always => true)
       sock = c.instance_variable_get(:@socket)
       expect(sock).to receive(:send).with(anything, 0, c.host, c.port)
       c.increment('foo')
@@ -105,7 +119,7 @@ describe Statsd::Client do
   end
 
   describe '#timing' do
-    let(:c) { Statsd::Client.new }
+    let(:c) { Lookout::StatsdClient.new }
 
     it 'should pass the sample rate along' do
       sample = 10
@@ -145,7 +159,7 @@ describe Statsd::Client do
   end
 
   describe '#increment' do
-    let(:c) { Statsd::Client.new }
+    let(:c) { Lookout::StatsdClient.new }
 
     it 'should update the counter by 1' do
       c.should_receive(:update_counter).with('foo', 1, anything())
@@ -154,7 +168,7 @@ describe Statsd::Client do
   end
 
   describe '#decrement' do
-    let(:c) { Statsd::Client.new }
+    let(:c) { Lookout::StatsdClient.new }
 
     it 'should update the counter by -1' do
       c.should_receive(:update_counter).with('foo', -1, anything())
@@ -163,7 +177,7 @@ describe Statsd::Client do
   end
 
   describe '#update_counter' do
-    let(:c) { Statsd::Client.new }
+    let(:c) { Lookout::StatsdClient.new }
 
     it 'should prepend the prefix if it has one' do
       c.prefix = 'dev'
@@ -179,7 +193,7 @@ describe Statsd::Client do
   end
 
   describe '#gauge' do
-    let(:c) { Statsd::Client.new }
+    let(:c) { Lookout::StatsdClient.new }
 
     context "called with a Hash" do
       it 'should encode the values correctly' do
@@ -229,22 +243,22 @@ describe Statsd::Client do
   end
 
   describe '#batch' do
-    let(:c) { Statsd::Client.new }
+    let(:c) { Lookout::StatsdClient.new }
     subject { c.batch { |b| b.increment('foo'); b.increment('bar'); } }
 
     it 'should take a block and put increments into a buffer' do
-      Statsd::Batch.any_instance do |b|
+      Lookout::Batch.any_instance do |b|
         b.backlog.should_receive(:<<).exactly.twice
       end
-      Statsd::Batch.any_instance.should_receive(:flush).and_call_original
+      Lookout::Batch.any_instance.should_receive(:flush).and_call_original
       c.should_receive(:send_data).once
       subject
     end
   end
 end
 
-describe Statsd::Batch do
-  let(:c) { Statsd::Client.new :host => 'foo.com', :prefix => 'my.app', :port => 1234, :batch_size => 20 }
+describe Lookout::Batch do
+  let(:c) { Lookout::StatsdClient.new :host => 'foo.com', :prefix => 'my.app', :port => 1234, :batch_size => 20 }
 
   it 'should delegate fields correctly' do
     c.batch do |b|

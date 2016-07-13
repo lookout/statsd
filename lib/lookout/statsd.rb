@@ -2,20 +2,41 @@ require 'socket'
 require 'resolv'
 require 'forwardable'
 
-module Statsd
-  # initialize singleton instance in an initializer
-  def self.create_instance(opts={})
-    raise "Already initialized Statsd" if defined? @@instance
-    @@instance ||= Client.new(opts)
+module Lookout
+  class Statsd
+    # initialize singleton instance to be an instance of
+    # +Lookout::StatsdClient+, with the given options
+    def self.create_instance(opts={})
+      raise "Already initialized Statsd" if instance_set?
+      @@instance ||= StatsdClient.new(opts)
+    end
+
+    # Explicitly set singleton instance. The instance must follow the
+    # same API as +Lookout::StatsdClient+
+    def self.set_instance(instance)
+      raise "Already initialized Statsd" if instance_set?
+      @@instance = instance
+    end
+
+    # Clear singleton instance, for use in testing ONLY
+    def self.clear_instance
+      @@instance = nil
+    end
+
+    # Check if the instance has been set
+    def self.instance_set?
+      defined?(@@instance) && !!@@instance
+    end
+
+    # Access singleton instance, which must have been initialized with
+    # .create_instance or .set_instance
+    def self.instance
+      raise "Statsd has not been initialized" unless instance_set?
+      @@instance
+    end
   end
 
-  # access singleton instance, which must have been initialized with #create_instance
-  def self.instance
-    raise "Statsd has not been initialized" unless @@instance
-    @@instance
-  end
-
-  class Client
+  class StatsdClient
     attr_accessor :host, :port, :prefix, :resolve_always, :batch_size
 
     def initialize(opts={})
@@ -182,7 +203,7 @@ module Statsd
   # that some care is taken if setting very large batch sizes. If the batch size
   # exceeds the allowed packet size for UDP on your network, communication
   # troubles may occur and data will be lost.
-  class Batch < Statsd::Client
+  class Batch < Lookout::StatsdClient
 
     attr_accessor :batch_size
 
@@ -240,9 +261,8 @@ module Statsd
         # Use params[:controller] insted of controller.controller_name to get full path.
         controller_name = controller.params[:controller].gsub("/", ".")
         key = "requests.#{controller_name}.#{controller.params[:action]}"
-        Statsd.instance.timing(key, &block)
+        Lookout::Statsd.instance.timing(key, &block)
       end
     end
   end
-
 end
