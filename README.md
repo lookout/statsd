@@ -10,8 +10,8 @@ A very simple client to format and send metrics to a StatsD server.
 In your client code:
 
     require 'rubygems'
-    require 'statsd'
-    STATSD = Statsd::Client.new(:host => 'localhost', :port => 8125)
+    require 'lookout/statsd'
+    STATSD = Lookout::StatsdClient.new(:host => 'localhost', :port => 8125)
 
     STATSD.increment('some_counter') # basic incrementing
     STATSD.increment('system.nested_counter', 0.1) # incrementing with sampling (10%)
@@ -28,11 +28,11 @@ client will always resolve the address unless `host` is set to 'localhost' or
 '127.0.0.1'.
 
     require 'rubygems'
-    require 'statsd'
+    require 'lookout/statsd'
 
-    STATSD = Statsd::Client.new(:host => 'specialstats.host.example',
-                                :port => '8125',
-                                :resolve_always => false)
+    STATSD = Lookout::StatsdClient.new(:host => 'specialstats.host.example',
+                                       :port => '8125',
+                                       :resolve_always => false)
 
     STATSD.increment('some_counter') # basic incrementing
 
