@@ -77,6 +77,15 @@ module Lookout
       value
     end
 
+    # +stat+ to log timing for, from provided block
+    def time(stat, sample_rate = 1)
+      start_time = Time.now.to_f
+      value = yield
+    ensure
+      timing(stat, ((Time.now.to_f - start_time) * 1000).floor, sample_rate)
+      value
+    end
+
     # +stats+ can be a string or an array of strings
     def increment(stats, sample_rate = 1)
       update_counter stats, 1, sample_rate
