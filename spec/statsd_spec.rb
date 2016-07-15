@@ -158,6 +158,32 @@ describe Lookout::StatsdClient do
     end
   end
 
+  describe '#time' do
+    let(:c) { Lookout::StatsdClient.new }
+    let(:value) { 1337 }
+    let(:sample_rate) { 3 }
+
+    before :each do
+      # Pretend our block took one second
+      Time.stub_chain(:now, :to_f).and_return(1, 2)
+    end
+
+    it 'should wrap a block correctly' do
+      expect(c).to receive(:timing).with('foo', 1000, 1)
+      c.time('foo') { true }
+    end
+
+    it 'should pass along sample rate' do
+      expect(c).to receive(:timing).with('foo', 1000, sample_rate)
+      c.time('foo', sample_rate) { true }
+    end
+
+    it 'should return the return value from the block' do
+      value = c.time('foo') { value }
+      expect(value).to eq value
+    end
+  end
+
   describe '#increment' do
     let(:c) { Lookout::StatsdClient.new }
 
