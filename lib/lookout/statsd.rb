@@ -103,6 +103,8 @@ module Lookout
       send_stats(stats.map { |s| "#{p}#{s}:#{delta}|c" }, sample_rate)
     end
 
+    alias_method :count, :update_counter
+
     # +stat_or_stats+ may either be a Hash OR a String. If it's a
     # String, then value must be specified. Other statsd client gems
     # have mostly standardized on using the String+value format, but
