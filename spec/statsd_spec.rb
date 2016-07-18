@@ -218,6 +218,15 @@ describe Lookout::StatsdClient do
     end
   end
 
+  describe '#count' do
+    let(:c) { Lookout::StatsdClient.new }
+
+    it 'should behave like update_counter' do
+      c.should_receive(:send_stats).with(['foo:123|c'], 1)
+      c.update_counter('foo', 123, 1)
+    end
+  end
+
   describe '#gauge' do
     let(:c) { Lookout::StatsdClient.new }
 
